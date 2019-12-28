@@ -23,6 +23,7 @@ class Threat_match(object):
         self.es = ""
         self.e_health = {}
         self.last_query_result = {}
+        self.agg_name = ""
 
         if self.checked == 0:
             print("Initial creation, Connect not checked, now checking")
@@ -68,7 +69,9 @@ class Threat_match(object):
                 print('_id:', doc['_id'])
 
         if "aggregations" in my_data.keys():
-            aggs = (my_data.get('aggregations'))
+            search_aggs = my_data['aggregations'][self.agg_name]['buckets']
+            for num, doc in enumerate(search_aggs):
+                print(num , doc)
         #self.prettyout(aggs)
         return
 
@@ -115,10 +118,11 @@ class Threat_match(object):
         self.last_query_result = self.es.search(index=query_index, size=size, body=my_query_body)
         return self.last_query_result
 
-    def basic_agg_search(self, query_index, query_field, size, query_gte, query_lte):
+    def basic_agg_search(self, query_index, query_field, size, query_gte, query_lte, agg_name):
+        self.agg_name = agg_name
         my_query_body = {
             "aggs": {
-                "2": {
+                self.agg_name: {
                     "terms": {
                         "field": query_field,
                         "size": size

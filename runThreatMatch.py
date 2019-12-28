@@ -20,12 +20,13 @@ def main():
     query_field = "ip"
     query_value = "192.168.1.88"
     query_index = "wazuh-monitoring-3.x-2019.12.28"
-    query_gte = "now-900m"
+    query_gte = "now-24h"
     query_lte = "now"
     size = 34900
+    aggname = "basic_agg"
     #result = threat.basic_search(query_index, query_field, query_value, size, "match")
 
-    result = threat.basic_agg_search(query_index, query_field, 10, query_gte, query_lte)
+    result = threat.basic_agg_search(query_index, query_field, size, query_gte, query_lte, aggname)
 
     #threat.prettyout(result)
     threat.dict_parse(result)
