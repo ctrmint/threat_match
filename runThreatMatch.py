@@ -15,12 +15,18 @@ from Threatmatch import *
 def main():
     threat = Threat_match("ThreatCluster", e_client_ip, e_client_port, e_client_proto)
 
-
     # debug the class instance
-    print(threat)
-    print("\n\n\n\n\n\n")
-    print("lets do that again")
     threat.update_cluster_status()
+    print("\n\n\n")
+    query_field = "ip"
+    query_value = "192.168.1.227"
+    query_index = "wazuh-monitoring-3.x-2019.12.28"
+    size = 10
+
+    result = threat.basic_match_search(query_index, query_field, query_value, size)
+
+
+    print(threat)
 
 
 if __name__ == '__main__':

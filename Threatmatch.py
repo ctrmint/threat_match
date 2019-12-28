@@ -22,6 +22,7 @@ class Threat_match(object):
         self.initial_status = 0
         self.es = ""
         self.e_health = {}
+        self.last_query_result = {}
 
         if self.checked == 0:
             print("Initial creation, Connect not checked, now checking")
@@ -59,7 +60,6 @@ class Threat_match(object):
         pp.pprint(my_data)
         return
 
-
     def basic_match_search(self, query_index, query_field, query_value, size):
         my_query_body = {
             "query": {
@@ -68,9 +68,10 @@ class Threat_match(object):
                 }
             }
         }
-        results = self.es.search(index=query_index, size=size, body=my_query_body)
-        self.prettyout(results)
-        return results
+        self.last_query_result = self.es.search(index=query_index, size=size, body=my_query_body)
+        return self.last_query_result
+
+
 
 
 
