@@ -36,8 +36,9 @@ def check_health_es(target, port):
 
 
 def basic_doc_search(target, port, myindex, query_field, query_value):
+    size = 2
     es = Elasticsearch([{'host': target, 'port': port}])
-    results = es.search(index=myindex, body={"query": {"match": {query_field: query_value}}})
+    results = es.search(index=myindex, size=size, body={"query": {"match": {query_field: query_value}}})
     prettyout(results)
     return
 
