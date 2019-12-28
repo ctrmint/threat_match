@@ -66,6 +66,8 @@ def basic_wildcard_search(target, port, myindex, query_field, query_value):
 
     results = es.search(index=myindex, size=size, body=my_query_body)
     prettyout(results)
+
+
     return
 
 

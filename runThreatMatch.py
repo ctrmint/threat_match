@@ -19,11 +19,12 @@ def main():
     threat.update_cluster_status()
     print("\n\n\n")
     query_field = "ip"
-    query_value = "192.168.1.227"
+    query_value = "192.168.1.88"
     query_index = "wazuh-monitoring-3.x-2019.12.28"
-    size = 10
+    size = 1
 
-    result = threat.basic_match_search(query_index, query_field, query_value, size)
+    result = threat.basic_search(query_index, query_field, query_value, size, "match")
+    threat.prettyout(result)
 
 
     print(threat)

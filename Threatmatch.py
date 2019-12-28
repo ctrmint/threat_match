@@ -60,6 +60,7 @@ class Threat_match(object):
         pp.pprint(my_data)
         return
 
+    # basic_match_search is deprecated, use basic_search and set search type as match
     def basic_match_search(self, query_index, query_field, query_value, size):
         my_query_body = {
             "query": {
@@ -71,7 +72,35 @@ class Threat_match(object):
         self.last_query_result = self.es.search(index=query_index, size=size, body=my_query_body)
         return self.last_query_result
 
+    # basic_wildcard_search is deprecated, use basic_search and set search type as wildcard
+    def basic_wildcard_search(self, query_index, query_field, query_value, size):
+        my_query_body = {
+            "query": {
+                "wildcard": {
+                    query_field: query_value
+                }
+            }
+        }
+        self.last_query_result = self.es.search(index=query_index, size=size, body=my_query_body)
+        return self.last_query_result
 
+    # Use instead of match or wildcard
+    def basic_search(self, query_index, query_field, query_value, size, search_type):
+        # requires search type to be set, either 'match' or 'wildcard'
+        # valid search_types
+        #       'match'
+        #       'wildcard'
+        # a match query will expect an explicit query_value
+        # a wildcard query can use an value with *
+        my_query_body = {
+            "query": {
+                search_type: {
+                    query_field: query_value
+                }
+            }
+        }
+        self.last_query_result = self.es.search(index=query_index, size=size, body=my_query_body)
+        return self.last_query_result
 
 
 
