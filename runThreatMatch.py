@@ -23,7 +23,10 @@ def main():
     query_index = "wazuh-monitoring-3.x-2019.12.28"
     size = 1
 
-    result = threat.basic_search(query_index, query_field, query_value, size, "match")
+    #result = threat.basic_search(query_index, query_field, query_value, size, "match")
+
+    result = threat.basic_agg_search(query_index, query_field, 10, "now-15m", "now")
+
     threat.prettyout(result)
 
 

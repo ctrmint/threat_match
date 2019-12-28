@@ -102,6 +102,56 @@ class Threat_match(object):
         self.last_query_result = self.es.search(index=query_index, size=size, body=my_query_body)
         return self.last_query_result
 
+    def basic_agg_search(self, query_index, query_field, size, query_gte, query_lte):
+        my_query_body = {
+            "aggs": {
+                "2": {
+                    "terms": {
+                        "field": query_field,
+                        "size": size
+                    }
+                }
+            },
+            "stored_fields": [
+                "*"
+            ],
+
+            "docvalue_fields": [
+                {
+                    "field": "timestamp",
+                    "format": "date_time"
+                },
+                {
+                    "field": "@timestamp",
+                    "format": "date_time"
+                }
+            ],
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "range": {
+                                "timestamp": {
+                                    "format": "strict_date_optional_time",
+                                    "gte": query_gte,
+                                    "lte": query_lte
+                                }
+                            }
+                        }
+                    ],
+                    "filter": [
+                        {
+                            "match_all": {}
+                        }
+                    ],
+                    "should": [],
+                    "must_not": []
+                }
+            }
+        }
+        self.last_query_result = self.es.search(index=query_index, body=my_query_body)
+        return self.last_query_result
+
 
 
     def __str__(self):
