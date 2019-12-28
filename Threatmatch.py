@@ -60,6 +60,19 @@ class Threat_match(object):
         pp.pprint(my_data)
         return
 
+    def dict_parse(self, my_data):
+        if "hits" in my_data.keys():
+            search_hits = my_data['hits']['hits']
+            for num, doc in enumerate(search_hits):
+                print(num, '--,', doc)
+                print('_id:', doc['_id'])
+
+        if "aggregations" in my_data.keys():
+            aggs = (my_data.get('aggregations'))
+        #self.prettyout(aggs)
+        return
+
+
     # basic_match_search is deprecated, use basic_search and set search type as match
     def basic_match_search(self, query_index, query_field, query_value, size):
         my_query_body = {
@@ -151,8 +164,6 @@ class Threat_match(object):
         }
         self.last_query_result = self.es.search(index=query_index, body=my_query_body)
         return self.last_query_result
-
-
 
     def __str__(self):
         return str(self.__class__) + '\n' + '\n'.join(('{} = {}'.format(item,self.__dict__[item])
