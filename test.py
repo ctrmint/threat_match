@@ -35,8 +35,8 @@ def check_health_es(target, port):
         print(" !!! Status is :" + e_health.get('status') + "                                  !!!")
 
 
-def basic_doc_search(target, port, myindex, query_field, query_value):
-    size = 2
+def basic_match_search(target, port, myindex, query_field, query_value):
+    size = 10
     es = Elasticsearch([{'host': target, 'port': port}])
 
     my_query_body = {
@@ -46,10 +46,87 @@ def basic_doc_search(target, port, myindex, query_field, query_value):
             }
         }
     }
-    
+
     results = es.search(index=myindex, size=size, body=my_query_body)
     prettyout(results)
     return
+
+
+def basic_wildcard_search(target, port, myindex, query_field, query_value):
+    size = 10
+    es = Elasticsearch([{'host': target, 'port': port}])
+
+    my_query_body = {
+        "query": {
+            "wildcard": {
+                query_field: query_value
+            }
+        }
+    }
+
+    results = es.search(index=myindex, size=size, body=my_query_body)
+    prettyout(results)
+    return
+
+
+def basic_agg_search(target, port, myindex):
+    size = 1
+    es = Elasticsearch([{'host': target, 'port': port}])
+    my_size = 1500
+    my_field = "ip"
+    my_query_body = {
+        "aggs": {
+            "2": {
+                "terms": {
+                    "field": my_field,
+                    "size": my_size
+                }
+            }
+        },
+        "stored_fields": [
+            "*"
+        ],
+
+        "docvalue_fields": [
+            {
+                "field": "timestamp",
+                "format": "date_time"
+            },
+            {
+                "field": "@timestamp",
+                "format": "date_time"
+            }
+        ],
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "range": {
+                            "timestamp": {
+                                "format": "strict_date_optional_time",
+                                "gte": "now-1m",
+                                "lte": "now"
+                            }
+                        }
+                    }
+                ],
+                "filter": [
+                    {
+                        "match_all": {}
+                    }
+                ],
+                "should": [],
+                "must_not": []
+            }
+        }
+    }
+
+    results = es.search(index=myindex, body=my_query_body)
+    prettyout(results)
+    return
+
+
+
 
 
 def main():
@@ -59,9 +136,10 @@ def main():
         check_health_es(e_client_ip, e_client_port)
 
         query_field = "ip"
-        query_value = "192.168.1.30"
+        query_value = "*"
         query_index = "wazuh-monitoring-3.x-2019.12.28"
-        basic_doc_search(e_client_ip, e_client_port, query_index, query_field, query_value)
+        #basic_wildcard_search(e_client_ip, e_client_port, query_index, query_field, query_value)
+        basic_agg_search(e_client_ip, e_client_port, query_index)
 
     else:
         print("Exiting, we should sent a P1 alert")
