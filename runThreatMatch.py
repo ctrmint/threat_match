@@ -35,10 +35,8 @@ def main():
             observed_traffic.append(TrafficIP(i.result['key']))
         else:
             # IP already present, need to increment counter, and set pending check value
-            print("already in the db")
             for n in observed_traffic:
                 if n.ip_address == i.result['key']:
-                    print("found match")
                     n.ip_address_instance_counter += 1
 
 
