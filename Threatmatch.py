@@ -37,8 +37,6 @@ class TrafficIP(object):
         return str(self.__class__) + '\n' + '\n'.join(('{} = {}'.format(item,self.__dict__[item])
                                                        for item in self.__dict__))
 
-
-
 class TrafficList(object):
     """ A class for a list of observed IP addresses """
     def __init__(self, name):

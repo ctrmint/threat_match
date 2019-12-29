@@ -7,9 +7,13 @@ from Threatmatch import *
 
 
 def main():
-    ip_scratch_list = []
-    observed_traffic = []
-    inspected_data = ThreatMatch("ThreatCluster", e_client_ip, e_client_port, e_client_proto)
+    ip_scratch_list = []                    # Scratch area for IP address, quicker check to see IP has been seen before.
+    observed_traffic = []                   # List of observed IP addresses to be checked as malicious etc
+
+    # Search elastic connections
+    inspected_data = ThreatMatch("Traffic", e_client_ip, e_client_port, e_client_proto)
+    ioc_data = ThreatMatch("iocData", e_client_ip, e_client_port, e_client_proto)
+
     # debug the class instance
     inspected_data.update_cluster_status()
     print("\n")
@@ -30,7 +34,7 @@ def main():
 
     for i in inspected_data.agg_results:
         if i.result['key'] not in ip_scratch_list:
-             # New IP address to record in observed_traffic
+            # New IP address to record in observed_traffic
             ip_scratch_list.append(i.result['key'])
             observed_traffic.append(TrafficIP(i.result['key']))
         else:
@@ -39,9 +43,15 @@ def main():
                 if n.ip_address == i.result['key']:
                     n.ip_address_instance_counter += 1
 
+    # Print out the observed
+    for i in observed_traffic:
+        print(i.ip_address, i.ip_address_instance_counter, i.pending_check, i.type)
 
-    for p in observed_traffic:
-        print(p.ip_address, p.ip_address_instance_counter, p.pending_check, p.type)
+    # loop through and perform check
+    for j in observed_traffic:
+        check = ioc_data.basic_search("intel", "queryfield", j.ip_address, size, "match")
+        print(ioc_data.last_query_result)
+
 
 if __name__ == '__main__':
     main()
