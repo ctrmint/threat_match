@@ -19,13 +19,19 @@ class TrafficIP(object):
     """ A class for each observed IP address """
     def __init__(self, ip_address):
         self.ip_address = ip_address
-        self.checked = 0
-        self.known_bad = 0
-        self.ip_address_instance_counter = 0
+        self.checked = False
+        self.pending_check = True
+        self.known_bad = False
+        self.ip_address_instance_counter = 1
         self.type = "external"
 
+        # Check if internal
         if str(self.ip_address).startswith(("10.", "172.16.", "192.168.")):
             self.type = "internal"
+
+    def set_pending_check(self):
+        self.pending_check = True
+        return
 
     def __str__(self):
         return str(self.__class__) + '\n' + '\n'.join(('{} = {}'.format(item,self.__dict__[item])
@@ -42,7 +48,6 @@ class TrafficList(object):
     def __str__(self):
         return str(self.__class__) + '\n' + '\n'.join(('{} = {}'.format(item,self.__dict__[item])
                                                        for item in self.__dict__))
-
 
 
 class SearchResult(object):
