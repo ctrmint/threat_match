@@ -21,10 +21,11 @@ class TrafficIP(object):
         self.ip_address = ip_address
         self.checked = 0
         self.known_bad = 0
-        self.type = ""
+        self.ip_address_instance_counter = 0
+        self.type = "external"
 
-        if self.ip_address:
-            pass
+        if str(self.ip_address).startswith(("10.", "172.16.", "192.168.")):
+            self.type = "internal"
 
     def __str__(self):
         return str(self.__class__) + '\n' + '\n'.join(('{} = {}'.format(item,self.__dict__[item])
