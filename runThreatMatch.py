@@ -1,21 +1,16 @@
 #! /usr/bin/env python3
 #
 
-
 from elasticsearch import *
 from enviro import *
-import requests
-import pprint
-import json
 from Threatmatch import *
 
 
-
-
 def main():
-    threat = Threat_match("ThreatCluster", e_client_ip, e_client_port, e_client_proto)
+    observed_traffic = TrafficList("traffic")
+    inspected_data = ThreatMatch("ThreatCluster", e_client_ip, e_client_port, e_client_proto)
     # debug the class instance
-    threat.update_cluster_status()
+    inspected_data.update_cluster_status()
     print("\n")
     query_field = "ip"
     query_value = "192.168.1.88"
@@ -24,14 +19,20 @@ def main():
     query_lte = "now"
     size = 34900
     aggname = "basic_agg"
+
     #result = threat.basic_search(query_index, query_field, query_value, size, "match")
 
-    result = threat.basic_agg_search(query_index, query_field, size, query_gte, query_lte, aggname)
+    # Pull aggregation of observed IP Addresses from recorded traffic
+    recorded_traffic = inspected_data.basic_agg_search(query_index, query_field, size, query_gte, query_lte, aggname)
 
-    #threat.prettyout(result)
-    threat.dict_parse(result)
     # Debug - dump instance attributes
-    #print(threat)
+
+    for i in inspected_data.agg_results:
+        observed_traffic.traffic_list.append(TrafficIP(i.result['key']))
+
+    print(observed_traffic.traffic_list[0])
+
+
 
 
 if __name__ == '__main__':

@@ -1,14 +1,62 @@
 #! /usr/bin/env python3
+#  -------------------------------------------------------------------
+#                   Intel Threat Match |  Mark Rodman
+#  -------------------------------------------------------------------
 #
+#  ThreatMatch class is core of functionality.
+#  It connects to the cluster, checks the cluster and performs searches
+#  and aggregations.
+#
+#  --------------------------------------------------------------------
 
 from elasticsearch import *
-from enviro import *
+from itertools import count
 import requests
 import pprint
-import json
 
 
-class Threat_match(object):
+class TrafficIP(object):
+    """ A class for each observed IP address """
+    def __init__(self, ip_address):
+        self.ip_address = ip_address
+        self.checked = 0
+        self.known_bad = 0
+        self.type = ""
+
+        if self.ip_address:
+            pass
+
+    def __str__(self):
+        return str(self.__class__) + '\n' + '\n'.join(('{} = {}'.format(item,self.__dict__[item])
+                                                       for item in self.__dict__))
+
+
+
+class TrafficList(object):
+    """ A class for a list of observed IP addresses """
+    def __init__(self, name):
+        self.name = name
+        self.traffic_list = []
+
+    def __str__(self):
+        return str(self.__class__) + '\n' + '\n'.join(('{} = {}'.format(item,self.__dict__[item])
+                                                       for item in self.__dict__))
+
+
+
+class SearchResult(object):
+    """ A class to handle results, not sure how this will work """
+    """ At present it represents one search result item"""
+
+    def __init__(self, result_data):
+        self.result = result_data
+
+    def __str__(self):
+        return str(self.__class__) + '\n' + '\n'.join(('{} = {}'.format(item,self.__dict__[item])
+                                                       for item in self.__dict__))
+
+
+class ThreatMatch(object):
     """ A class to manage the threat match process """
     def __init__(self, name, e_cli_ip, e_cli_port, e_cli_proto):
         self.checked = 0
@@ -24,6 +72,8 @@ class Threat_match(object):
         self.e_health = {}
         self.last_query_result = {}
         self.agg_name = ""
+        self.all_results = []                                                              # complete list of results
+        self.agg_results = []
 
         if self.checked == 0:
             print("Initial creation, Connect not checked, now checking")
@@ -71,8 +121,7 @@ class Threat_match(object):
         if "aggregations" in my_data.keys():
             search_aggs = my_data['aggregations'][self.agg_name]['buckets']
             for num, doc in enumerate(search_aggs):
-                print(num , doc)
-        #self.prettyout(aggs)
+                self.agg_results.append(SearchResult(doc))
         return
 
 
@@ -98,6 +147,7 @@ class Threat_match(object):
             }
         }
         self.last_query_result = self.es.search(index=query_index, size=size, body=my_query_body)
+        self.dict_parse(self.last_query_result)
         return self.last_query_result
 
     # Use instead of match or wildcard
@@ -116,6 +166,7 @@ class Threat_match(object):
             }
         }
         self.last_query_result = self.es.search(index=query_index, size=size, body=my_query_body)
+        self.dict_parse(self.last_query_result)
         return self.last_query_result
 
     def basic_agg_search(self, query_index, query_field, size, query_gte, query_lte, agg_name):
@@ -167,6 +218,7 @@ class Threat_match(object):
             }
         }
         self.last_query_result = self.es.search(index=query_index, body=my_query_body)
+        self.dict_parse(self.last_query_result)
         return self.last_query_result
 
     def __str__(self):
